@@ -32,9 +32,9 @@ query1 = ''' CREATE TEMP TABLE name_and_position AS (SELECT person.businessentit
 										FROM person.person
 										JOIN humanresources.employee
 										USING (businessentityid))
-;'''
+;
 
-query2 = ''' CREATE TEMP TABLE employee_info AS (SELECT firstname "First Name",
+CREATE TEMP TABLE employee_info AS (SELECT firstname "First Name",
 									lastname "Last Name",
 									jobtitle "Job Title",
 									vacationhours "Vacation Hours",
@@ -42,21 +42,24 @@ query2 = ''' CREATE TEMP TABLE employee_info AS (SELECT firstname "First Name",
 									FROM name_and_position
 									JOIN person.emailaddress
 									USING (businessentityid))
-;'''
+;
 
-query3 = ''' SELECT *
+            SELECT *
 			FROM employee_info
 			WHERE "Vacation Hours" >= 40
 			ORDER BY "Vacation Hours" DESC
-			LIMIT 10
 ;'''
 
 c.execute(query1)
-c.execute(query2)
-c.execute(query3)
 
-for row in c:
-    print(row)
+
+columns = [desc[0] for desc in c.description]
+data = c.fetchall()
+df = pd.DataFrame(list(data), columns=columns)
+
+writer = pd.ExcelWriter('excel_reports/employee_info.xlsx')
+df.to_excel(writer, sheet_name='Employee Info')
+writer.save()
 
 
 conn.commit()
