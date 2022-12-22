@@ -1,9 +1,15 @@
+import functions
 import psycopg2 as pg2
 import pandas as pd
 import numpy as np
 from dotenv import load_dotenv
 from pathlib import Path
 import os
+
+import sys
+sys.path.insert(0, '../src')
+sys.path.insert(0, '../data')
+
 
 load_dotenv()
 
@@ -24,31 +30,8 @@ conn = pg2.connect(dbname=DATABASE,
 
 c = conn.cursor()
 
-query1 = ''' CREATE TEMP TABLE name_and_position AS (SELECT person.businessentityid,
-										person.firstname, 
-										person.lastname,
-										employee.jobtitle,
-										employee.vacationhours
-										FROM person.person
-										JOIN humanresources.employee
-										USING (businessentityid))
-;
+query1 = functions.create_query_string('sql_queries/employee_info.sql')
 
-CREATE TEMP TABLE employee_info AS (SELECT firstname "First Name",
-									lastname "Last Name",
-									jobtitle "Job Title",
-									vacationhours "Vacation Hours",
-									emailaddress.emailaddress "Email Address"
-									FROM name_and_position
-									JOIN person.emailaddress
-									USING (businessentityid))
-;
-
-            SELECT *
-			FROM employee_info
-			WHERE "Vacation Hours" >= 40
-			ORDER BY "Vacation Hours" DESC
-;'''
 
 c.execute(query1)
 
