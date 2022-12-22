@@ -16,20 +16,44 @@ PORT = os.getenv('PG_PORT')
 print(DATABASE)
 print(USER)
 
-conn = pg2.connect(dbname=PG_DATABASE,
-                   user=PG_USER,
-                   password=PG_PASSWORD,
-                   host=PG_HOST,
-                   port=PG_PORT)
+conn = pg2.connect(dbname=DATABASE,
+                   user=USER,
+                   password=PASSWORD,
+                   host=HOST,
+                   port=PORT)
 
 c = conn.cursor()
 
-query = ''' select *
-            from person.person
-            limit 10;'''
+query1 = ''' CREATE TEMP TABLE name_and_position AS (SELECT person.businessentityid,
+										person.firstname, 
+										person.lastname,
+										employee.jobtitle,
+										employee.vacationhours
+										FROM person.person
+										JOIN humanresources.employee
+										USING (businessentityid))
+;'''
 
+query2 = ''' CREATE TEMP TABLE employee_info AS (SELECT firstname "First Name",
+									lastname "Last Name",
+									jobtitle "Job Title",
+									vacationhours "Vacation Hours",
+									emailaddress.emailaddress "Email Address"
+									FROM name_and_position
+									JOIN person.emailaddress
+									USING (businessentityid))
+;'''
 
-c.execute(query)
+query3 = ''' SELECT *
+			FROM employee_info
+			WHERE "Vacation Hours" >= 40
+			ORDER BY "Vacation Hours" DESC
+			LIMIT 10
+;'''
+
+c.execute(query1)
+c.execute(query2)
+c.execute(query3)
 
 for row in c:
     print(row)
