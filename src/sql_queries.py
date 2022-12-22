@@ -7,11 +7,11 @@ import os
 
 load_dotenv()
 
-DATABASE = os.getenv('DATABASE')
+DATABASE = os.getenv('PG_DATABASE')
 USER = os.getenv('PG_USER')
-PASSWORD = os.getenv('PASSWORD')
-HOST = os.getenv('HOST')
-PORT = os.getenv('PORT')
+PASSWORD = os.getenv('PG_PASSWORD')
+HOST = os.getenv('PG_HOST')
+PORT = os.getenv('PG_PORT')
 
 print(DATABASE)
 print(USER)
