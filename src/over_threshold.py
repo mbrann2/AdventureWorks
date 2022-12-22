@@ -13,7 +13,7 @@ sys.path.insert(0, '../data')
 connection = functions.database_connection()
 cursor = connection.cursor()
 
-query1 = functions.create_query_string('sql_queries/employee_info.sql')
+query1 = functions.create_query_string('sql_queries/over_threshold.sql')
 
 cursor.execute(query1)
 
@@ -21,8 +21,8 @@ columns = [desc[0] for desc in cursor.description]
 data = cursor.fetchall()
 df = pd.DataFrame(list(data), columns=columns)
 
-writer = pd.ExcelWriter('excel_reports/employee_info.xlsx')
-df.to_excel(writer, sheet_name= 'Employee Information')
+writer = pd.ExcelWriter('excel_reports/employees_over_threshold.xlsx')
+df.to_excel(writer, sheet_name= 'Employees Over Vacation Hours Threshold')
 writer.save()
 
 
