@@ -1,3 +1,4 @@
+import argparse
 import functions
 import psycopg2 as pg2
 import pandas as pd
@@ -10,21 +11,18 @@ import sys
 sys.path.insert(0, '../src')
 sys.path.insert(0, '../data')
 
-connection = functions.database_connection()
-cursor = connection.cursor()
 
-query1 = functions.create_query_string('sql_queries/employee_info.sql')
+parser = argparse.ArgumentParser(
+    description="The file paths needed."
+)
 
-cursor.execute(query1)
+parser.add_argument("-i", "--input", type=str,
+                    required=True, help="input file")
+parser.add_argument("-o", "--output", type=str,
+                    required=True, help="output file")
+parser.add_argument('-s', '--sheetname', type=str,
+                    required=False, help='sheet name')
 
-columns = [desc[0] for desc in cursor.description]
-data = cursor.fetchall()
-df = pd.DataFrame(list(data), columns=columns)
+args = parser.parse_args()
 
-writer = pd.ExcelWriter('excel_reports/employee_info.xlsx')
-df.to_excel(writer, sheet_name= 'Employee Information')
-writer.save()
-
-
-connection.commit()
-connection.close()
+functions.final_out(args.input, args.output)

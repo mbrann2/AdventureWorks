@@ -10,21 +10,17 @@ import sys
 sys.path.insert(0, '../src')
 sys.path.insert(0, '../data')
 
-connection = functions.database_connection()
-cursor = connection.cursor()
+parser = argparse.ArgumentParser(
+    description="The file paths needed."
+)
 
-query1 = functions.create_query_string('sql_queries/over_threshold.sql')
+parser.add_argument("-i", "--input", type=str,
+                    required=True, help="input file")
+parser.add_argument("-o", "--output", type=str,
+                    required=True, help="output file")
+parser.add_argument('-s', '--sheetname', type=str,
+                    required=False, help='sheet name')
 
-cursor.execute(query1)
+args = parser.parse_args()
 
-columns = [desc[0] for desc in cursor.description]
-data = cursor.fetchall()
-df = pd.DataFrame(list(data), columns=columns)
-
-writer = pd.ExcelWriter('excel_reports/employees_over_threshold.xlsx')
-df.to_excel(writer, sheet_name= 'Employees Over Vacation Hours Threshold')
-writer.save()
-
-
-connection.commit()
-connection.close()
+functions.final_out(args.input, args.output)
