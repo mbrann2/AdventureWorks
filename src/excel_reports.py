@@ -20,9 +20,8 @@ parser.add_argument("-i", "--input", type=str,
                     required=True, help="input file")
 parser.add_argument("-o", "--output", type=str,
                     required=True, help="output file")
-parser.add_argument('-s', '--sheetname', type=str,
-                    required=False, help='sheet name')
+
 
 args = parser.parse_args()
 
-functions.final_out(args.input, args.output)
+functions.sql_to_excel(args.input, args.output)

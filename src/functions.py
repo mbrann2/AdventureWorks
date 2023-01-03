@@ -2,6 +2,7 @@ import functions
 import psycopg2 as pg2
 import pandas as pd
 import numpy as np
+import glob
 from dotenv import load_dotenv
 from pathlib import Path
 import os
@@ -33,24 +34,25 @@ def database_connection():
     return conn
 
 
-def sql_to_excel(filein, fileout, sheetname='sheet'):
+def sql_to_excel(folderin, folderout):
 
     connection = functions.database_connection()
 
     cursor = connection.cursor()
 
+    os.chdir(folderin)
     # read sql query
-    query1 = functions.create_query_string(filein)
+    for file in glob.glob('*.sql'):
+        SQLQuery = functions.create_query_string(file)
+        cursor.execute(SQLQuery)
 
-    cursor.execute(query1)
+        columns = [desc[0] for desc in cursor.description]
+        data = cursor.fetchall()
+        df = pd.DataFrame(list(data), columns=columns)
 
-    columns = [desc[0] for desc in cursor.description]
-    data = cursor.fetchall()
-    df = pd.DataFrame(list(data), columns=columns)
-
-    writer = pd.ExcelWriter(fileout)
-    df.to_excel(writer, sheet_name=sheetname)
-    writer.save()
+        writer = pd.ExcelWriter(f'{folderout}{file}.xlsx')
+        df.to_excel(writer, sheet_name=sheetname)
+        writer.save()
 
     connection.commit()
     connection.close()
@@ -58,5 +60,4 @@ def sql_to_excel(filein, fileout, sheetname='sheet'):
 
 if __name__ == "__main__":
 
-    final_out('sql_queries/employee_info.sql',
-              'excel_reports/employee_info.xlsx', 'Employee Info')
+    sql_to_excel('sql_queries/', '../excel_reports/')
