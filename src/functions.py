@@ -51,7 +51,7 @@ def sql_to_excel(folderin, folderout):
         df = pd.DataFrame(list(data), columns=columns)
 
         writer = pd.ExcelWriter(f'{folderout}{file}.xlsx')
-        df.to_excel(writer, sheet_name=sheetname)
+        df.to_excel(writer, sheet_name='sheetname')
         writer.save()
 
     connection.commit()
